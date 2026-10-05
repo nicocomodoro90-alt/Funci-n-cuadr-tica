@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Función cuadrática</title>
+<meta name="description" content="Recurso educativo abierto para explorar la función cuadrática en forma polinómica, canónica y factorizada, con sus puntos característicos.">
+<meta name="author" content="Nicolás Alberto Cerdá">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<!--
+  Función cuadrática
+  Autor: Nicolás Alberto Cerdá. Matemática 1, Facultad de Ciencias Económicas, UNPSJB.
+  Licencia: Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)
+  https://creativecommons.org/licenses/by-sa/4.0/deed.es
+  Podés copiar, modificar y redistribuir este archivo citando la autoría
+  y publicando tu versión con la misma licencia.
+-->
+<style>
+  :root {
+    --bg: #EEF3F1;
+    --paper: #FAFCFB;
+    --ink: #16252D;
+    --muted: #4C5F68;
+    --rule: #C7D6D0;
+    --grid: #DCE8E3;
+    --grid-strong: #B4CBC1;
+    --axis: #33464F;
+    --curve: #1E56A0;
+    --vertex: #B3261E;
+    --root: #17724A;
+    --yint: #7B3FA8;
+    --active: #E2EBF7;
+    --focus: #C98A00;
+    --formula: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Times New Roman", serif;
+    --text: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    font-size: 100%;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101719; --paper: #172124; --ink: #E6EEF0; --muted: #A3B5BB;
+      --rule: #2B3C41; --grid: #1F2F34; --grid-strong: #2F464D; --axis: #B9CBD0;
+      --curve: #82B4F2; --vertex: #FF8A7A; --root: #5FD39A; --yint: #CDA2F0;
+      --active: #1D2F44; --focus: #F2C14E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101719; --paper: #172124; --ink: #E6EEF0; --muted: #A3B5BB;
+    --rule: #2B3C41; --grid: #1F2F34; --grid-strong: #2F464D; --axis: #B9CBD0;
+    --curve: #82B4F2; --vertex: #FF8A7A; --root: #5FD39A; --yint: #CDA2F0;
+    --active: #1D2F44; --focus: #F2C14E;
+  }
+  :root.grande { font-size: 125%; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between;
+    gap: 1rem; padding-bottom: 1rem; border-bottom: 2px solid var(--ink); margin-bottom: 1.5rem;
+  }
+  h1 { font-size: 2.1rem; line-height: 1.1; margin: 0 0 .35rem; letter-spacing: -.01em; }
+  h1 .f { font-family: var(--formula); font-style: italic; font-weight: 400; }
+  .lead { margin: 0; color: var(--muted); max-width: 60ch; }
+  .tools { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+  button {
+    font: inherit; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--rule); border-radius: 6px; padding: .45rem .8rem; cursor: pointer;
+  }
+  button:hover { border-color: var(--axis); }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+  @media (max-width: 880px) { .layout { grid-template-columns: 1fr; } }
+
+  .graph { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: .75rem; }
+  canvas { display: block; width: 100%; aspect-ratio: 5 / 4; touch-action: none; }
+  .graph-bar { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; align-items: center; margin-top: .6rem; }
+  .legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin: 0; padding: 0; list-style: none; font-size: .9rem; }
+  .legend li { display: flex; align-items: center; gap: .35rem; }
+  .legend label { display: flex; align-items: center; gap: .35rem; cursor: pointer; }
+  .legend input { width: 1.05rem; height: 1.05rem; margin: 0; accent-color: var(--curve); }
+  .zoom { display: flex; gap: .35rem; flex-wrap: wrap; }
+  .zoom button { padding: .3rem .6rem; font-size: .9rem; }
+
+  .panel h2 { font-size: 1.15rem; margin: 0 0 .6rem; }
+  .panel section + section { margin-top: 1.5rem; }
+
+  .forms { display: grid; gap: .5rem; }
+  .form-row {
+    text-align: left; display: grid; gap: .1rem; padding: .65rem .85rem;
+    border: 1px solid var(--rule); border-left: 6px solid transparent; background: var(--paper);
+  }
+  .form-row[aria-pressed="true"] { background: var(--active); border-left-color: var(--curve); }
+  .form-name { font-size: .85rem; color: var(--muted); }
+  .form-row[aria-pressed="true"] .form-name { color: var(--ink); font-weight: 700; }
+  .expr { font-family: var(--formula); font-size: 1.35rem; line-height: 1.3; overflow-x: auto; white-space: nowrap; }
+  .expr i { font-style: italic; }
+  .expr.none { font-family: var(--text); font-size: .95rem; color: var(--muted); white-space: normal; }
+
+  fieldset { border: 1px solid var(--rule); border-radius: 8px; padding: .75rem 1rem 1rem; margin: 0; background: var(--paper); }
+  legend { padding: 0 .35rem; font-weight: 700; }
+  .slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .15rem .75rem; margin-top: .7rem; }
+  .slider label { font-size: .95rem; }
+  .slider label b { font-family: var(--formula); font-style: italic; font-size: 1.1rem; font-weight: 400; }
+  .slider output { font-family: var(--formula); font-size: 1.15rem; min-width: 4ch; text-align: right; }
+  .slider input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--curve); height: 1.6rem; }
+  .notice { margin: .75rem 0 0; font-size: .9rem; color: var(--muted); }
+  .notice:empty { display: none; }
+
+  dl.points { display: grid; grid-template-columns: auto 1fr; gap: .4rem 1rem; margin: 0; background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: .85rem 1rem; }
+  dl.points dt { font-size: .92rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+  dl.points dd { margin: 0; font-family: var(--formula); font-size: 1.1rem; }
+  .mk { display: inline-block; width: .8rem; height: .8rem; flex: none; }
+  .mk.v { background: var(--vertex); }
+  .mk.r { background: var(--root); border-radius: 50%; }
+  .mk.y { width: 0; height: 0; border-left: .45rem solid transparent; border-right: .45rem solid transparent; border-bottom: .8rem solid var(--yint); }
+  .mk.e { width: 1rem; height: 0; border-top: 2px dashed var(--muted); }
+  .mk.c { width: 1rem; height: 3px; background: var(--curve); }
+
+  .explore { margin-top: 2.25rem; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1.5rem; }
+  @media (max-width: 880px) { .explore { grid-template-columns: 1fr; } }
+  .explore h2 { font-size: 1.25rem; margin: 0 0 .5rem; }
+  .explore ol { margin: 0; padding-left: 1.4rem; max-width: 68ch; }
+  .explore li + li { margin-top: .5rem; }
+  .explore p { margin: 0 0 .5rem; max-width: 60ch; }
+  .f { font-family: var(--formula); font-style: italic; }
+  .ver { display: block; margin-top: .35rem; padding: .25rem .7rem; font-size: .9rem; }
+  .ver[aria-expanded="true"] { background: var(--active); border-color: var(--curve); }
+  .resp { margin-top: .45rem; padding: .6rem .85rem; background: var(--paper); border-left: 4px solid var(--root); border-radius: 0 6px 6px 0; }
+
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--rule); font-size: .9rem; color: var(--muted); }
+  footer a { color: var(--curve); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Función cuadrática</h1>
+      <p class="lead">Una misma función cuadrática se puede escribir de tres maneras. Elegí una forma, mové sus deslizadores y mirá cómo cambian juntas la gráfica, las otras dos expresiones y los puntos característicos.</p>
+    </div>
+    <div class="tools">
+      <button type="button" id="btnGrande" aria-pressed="false">Letra más grande</button>
+      <button type="button" id="btnTema">Cambiar a modo oscuro</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="graph">
+      <canvas id="lienzo" role="img" aria-label="Gráfico de la parábola"></canvas>
+      <p id="anuncio" class="sr-only" aria-live="polite"></p>
+      <div class="graph-bar">
+        <ul class="legend" aria-label="Elementos visibles en el gráfico">
+          <li><label><input type="checkbox" id="verV" checked><span class="mk v" aria-hidden="true"></span>Vértice V</label></li>
+          <li><label><input type="checkbox" id="verR" checked><span class="mk r" aria-hidden="true"></span>Raíces R</label></li>
+          <li><label><input type="checkbox" id="verY" checked><span class="mk y" aria-hidden="true"></span>Ordenada C</label></li>
+          <li><label><input type="checkbox" id="verE" checked><span class="mk e" aria-hidden="true"></span>Eje de simetría</label></li>
+        </ul>
+        <div class="zoom" role="group" aria-label="Vista del gráfico">
+          <button type="button" id="zIn">Acercar</button>
+          <button type="button" id="zOut">Alejar</button>
+          <button type="button" id="zV">Centrar en el vértice</button>
+          <button type="button" id="z0">Vista inicial</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <section aria-labelledby="t-formas">
+        <h2 id="t-formas">Expresiones de <span class="f">f</span>(<span class="f">x</span>)</h2>
+        <div class="forms">
+          <button type="button" class="form-row" data-mode="poly" aria-pressed="true">
+            <span class="form-name">Forma polinómica</span>
+            <span class="expr" id="ePoly"></span>
+          </button>
+          <button type="button" class="form-row" data-mode="canon" aria-pressed="false">
+            <span class="form-name">Forma canónica</span>
+            <span class="expr" id="eCanon"></span>
+          </button>
+          <button type="button" class="form-row" data-mode="fact" aria-pressed="false">
+            <span class="form-name">Forma factorizada</span>
+            <span class="expr" id="eFact"></span>
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <fieldset id="controles">
+          <legend id="tControles">Deslizadores de la forma polinómica</legend>
+          <div id="sliders"></div>
+          <p class="notice" id="aviso"></p>
+        </fieldset>
+      </section>
+
+      <section aria-labelledby="t-puntos">
+        <h2 id="t-puntos">Puntos y elementos característicos</h2>
+        <dl class="points">
+          <dt><span class="mk v" aria-hidden="true"></span>Vértice</dt><dd id="pV"></dd>
+          <dt><span class="mk e" aria-hidden="true"></span>Eje de simetría</dt><dd id="pE"></dd>
+          <dt><span class="mk r" aria-hidden="true"></span>Raíces</dt><dd id="pR"></dd>
+          <dt><span class="mk y" aria-hidden="true"></span>Ordenada al origen</dt><dd id="pY"></dd>
+          <dt>Discriminante</dt><dd id="pD"></dd>
+          <dt><span class="mk c" aria-hidden="true"></span>Concavidad</dt><dd id="pC"></dd>
+          <dt>Imagen</dt><dd id="pI"></dd>
+        </dl>
+      </section>
+    </div>
+  </div>
+
+  <div class="explore">
+    <section aria-labelledby="t-explorar">
+      <h2 id="t-explorar">Para explorar</h2>
+      <ol>
+        <li>En la forma polinómica, mové solo <span class="f">c</span>. ¿Qué punto de la gráfica se mueve de manera directa? ¿Por qué el vértice también cambia de lugar?
+          <button type="button" class="ver" aria-expanded="false" aria-controls="resp1">Ver respuesta</button>
+          <div class="resp" id="resp1" hidden>Se mueve la ordenada al origen C = (0 ; <span class="f">c</span>), porque <span class="f">f</span>(0) = <span class="f">c</span>. En realidad toda la parábola se traslada en forma vertical. El vértice sube o baja junto con ella porque <span class="f">k</span> = <span class="f">c</span> − <span class="f">b</span>²/(4<span class="f">a</span>) depende de <span class="f">c</span>, pero su abscisa <span class="f">h</span> = −<span class="f">b</span>/(2<span class="f">a</span>) no cambia, así que el eje de simetría queda en el mismo lugar.</div>
+        </li>
+        <li>En la forma canónica, mové <span class="f">h</span> y después <span class="f">k</span>. ¿Qué movimiento produce cada uno? ¿Por qué en esta forma el vértice se lee sin hacer cuentas?
+          <button type="button" class="ver" aria-expanded="false" aria-controls="resp2">Ver respuesta</button>
+          <div class="resp" id="resp2" hidden><span class="f">h</span> traslada la parábola en forma horizontal y <span class="f">k</span> en forma vertical, sin cambiar su abertura. Como (<span class="f">x</span> − <span class="f">h</span>)² nunca es negativo y vale 0 solo cuando <span class="f">x</span> = <span class="f">h</span>, en ese valor la función alcanza su mínimo (si <span class="f">a</span> &gt; 0) o su máximo (si <span class="f">a</span> &lt; 0), que es <span class="f">k</span>. Por eso el vértice es directamente V = (<span class="f">h</span> ; <span class="f">k</span>).</div>
+        </li>
+        <li>Cambiá el signo de <span class="f">a</span> en cualquiera de las formas. ¿Qué pasa con la concavidad y con la imagen de la función?
+          <button type="button" class="ver" aria-expanded="false" aria-controls="resp3">Ver respuesta</button>
+          <div class="resp" id="resp3" hidden>Si <span class="f">a</span> &gt; 0 la parábola es cóncava hacia arriba y la imagen es [<span class="f">k</span> ; +∞). Si <span class="f">a</span> &lt; 0 es cóncava hacia abajo y la imagen es (−∞ ; <span class="f">k</span>]. El valor absoluto de <span class="f">a</span> indica qué tan abierta o cerrada es. Ojo: en la forma canónica el vértice queda fijo al cambiar <span class="f">a</span>, pero en la polinómica también se mueve, porque <span class="f">h</span> = −<span class="f">b</span>/(2<span class="f">a</span>).</div>
+        </li>
+        <li>En la forma factorizada, acercá <span class="f">x</span>₁ y <span class="f">x</span>₂ hasta que coincidan. ¿Cuánto vale el discriminante? ¿Dónde queda el vértice?
+          <button type="button" class="ver" aria-expanded="false" aria-controls="resp4">Ver respuesta</button>
+          <div class="resp" id="resp4" hidden>El discriminante vale 0 y la función tiene una raíz doble. El vértice queda apoyado sobre el eje <span class="f">x</span>, en (<span class="f">x</span>₁ ; 0). En general, la abscisa del vértice es el punto medio entre las raíces, <span class="f">h</span> = (<span class="f">x</span>₁ + <span class="f">x</span>₂)/2, por la simetría de la parábola.</div>
+        </li>
+        <li>Volvé a la forma polinómica y buscá una parábola sin raíces reales. ¿Qué signo tiene el discriminante? ¿Qué muestra la forma factorizada y por qué?
+          <button type="button" class="ver" aria-expanded="false" aria-controls="resp5">Ver respuesta</button>
+          <div class="resp" id="resp5" hidden>El discriminante es negativo, entonces la fórmula resolvente pide la raíz cuadrada de un número negativo y no hay soluciones reales: la parábola no corta al eje <span class="f">x</span>. La forma factorizada no se puede escribir en los reales porque justamente se arma con las raíces.</div>
+        </li>
+      </ol>
+    </section>
+    <section aria-labelledby="t-uso">
+      <h2 id="t-uso">Cómo usarlo</h2>
+      <p>Tocá una de las tres expresiones para elegir con qué forma trabajar. Los deslizadores de abajo cambian según la forma elegida.</p>
+      <p>Con el teclado: la tecla Tab recorre los controles y las flechas cambian el valor del deslizador seleccionado. Los cambios en la parábola se anuncian para lectores de pantalla.</p>
+      <p>El coeficiente <span class="f">a</span> salta el valor 0, porque con <span class="f">a</span> = 0 la función deja de ser cuadrática.</p>
+    </section>
+  </div>
+
+  <footer>
+    <p>Función cuadrática. Autor: Nicolás Alberto Cerdá, Matemática 1, Facultad de Ciencias Económicas, Universidad Nacional de la Patagonia San Juan Bosco, 2026.</p>
+    <p>Este recurso se publica bajo licencia <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" rel="license">Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)</a>. Podés copiarlo, adaptarlo y redistribuirlo citando la autoría y compartiendo tu versión con la misma licencia.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Estado ----------
+  // La verdad matemática se guarda en forma polinómica: f(x) = a x² + b x + c
+  var P = { a: 1, b: -2, c: -3 };
+  var mode = "poly";
+  var cur = {};      // valores de los deslizadores de la forma activa
+  var view = { cx: 0, cy: 0, R: 10 };   // centro y semiancho visible
+  var VIEW0 = { cx: 0, cy: 0, R: 10 };
+
+  var CFG = {
+    poly: {
+      titulo: "forma polinómica",
+      sl: [
+        ["a", "a", "abertura y concavidad", -5, 5, 0.1],
+        ["b", "b", "coeficiente lineal", -10, 10, 0.5],
+        ["c", "c", "término independiente", -10, 10, 0.5]
+      ]
+    },
+    canon: {
+      titulo: "forma canónica",
+      sl: [
+        ["a", "a", "abertura y concavidad", -5, 5, 0.1],
+        ["h", "h", "abscisa del vértice", -8, 8, 0.25],
+        ["k", "k", "ordenada del vértice", -10, 10, 0.25]
+      ]
+    },
+    fact: {
+      titulo: "forma factorizada",
+      sl: [
+        ["a", "a", "abertura y concavidad", -5, 5, 0.1],
+        ["x1", "x₁", "primera raíz", -8, 8, 0.25],
+        ["x2", "x₂", "segunda raíz", -8, 8, 0.25]
+      ]
+    }
+  };
+
+  // ---------- Utilidades numéricas y de formato ----------
+  var EPS = 1e-9;
+  function r2(v) { var r = Math.round(v * 100) / 100; return Math.abs(r) < EPS ? 0 : r; }
+  function fmt(v) {
+    var r = r2(v);
+    var s = String(Math.abs(r)).replace(".", ",");
+    return (r < 0 ? "−" : "") + s;
+  }
+  var X = "<i>x</i>";
+
+  function vertex(p) { var h = -p.b / (2 * p.a); return { h: h, k: p.a * h * h + p.b * h + p.c }; }
+  function disc(p) { var d = p.b * p.b - 4 * p.a * p.c; return Math.abs(d) < 1e-7 ? 0 : d; }
+  function roots(p) {
+    var d = disc(p);
+    if (d < 0) return [];
+    if (d === 0) return [-p.b / (2 * p.a)];
+    var s = Math.sqrt(d);
+    var r1 = (-p.b - s) / (2 * p.a), r2v = (-p.b + s) / (2 * p.a);
+    return r1 < r2v ? [r1, r2v] : [r2v, r1];
+  }
+
+  function coefPrefix(a) {
+    var r = r2(a);
+    if (r === 1) return "";
+    if (r === -1) return "−";
+    return fmt(r);
+  }
+  function signed(v) { // " + 3" o " − 3"
+    var r = r2(v);
+    return (r < 0 ? " − " : " + ") + fmt(Math.abs(r));
+  }
+  function factor(r) { // (x − r)
+    var v = r2(r);
+    if (v === 0) return { txt: X, bare: true };
+    return { txt: "(" + X + (v > 0 ? " − " : " + ") + fmt(Math.abs(v)) + ")", bare: false };
+  }
+
+  function exprPoly(p) {
+    var s = "<i>f</i>(" + X + ") = " + coefPrefix(p.a) + X + "²";
+    var b = r2(p.b), c = r2(p.c);
+    if (b !== 0) {
+      var ab = Math.abs(b);
+      s += (b < 0 ? " − " : " + ") + (ab === 1 ? "" : fmt(ab)) + X;
+    }
+    if (c !== 0) s += signed(c);
+    return s;
+  }
+  function exprCanon(p) {
+    var v = vertex(p);
+    var f = factor(v.h);
+    var s = "<i>f</i>(" + X + ") = " + coefPrefix(p.a) + (f.bare ? X + "²" : f.txt + "²");
+    if (r2(v.k) !== 0) s += signed(v.k);
+    return s;
+  }
+  function exprFact(p, rr) {
+    if (rr.length === 0) return null;
+    var s = "<i>f</i>(" + X + ") = " + coefPrefix(p.a);
+    if (rr.length === 1) {
+      var f = factor(rr[0]);
+      return s + (f.bare ? X + "²" : f.txt + "²");
+    }
+    var f1 = factor(rr[0]), f2 = factor(rr[1]);
+    if (f2.bare) { var t = f1; f1 = f2; f2 = t; } // la x sola va adelante
+    return s + f1.txt + f2.txt;
+  }
+
+  // ---------- Paso de una forma a otra ----------
+  function polyFromCur() {
+    if (mode === "poly") return { a: cur.a, b: cur.b, c: cur.c };
+    if (mode === "canon") return { a: cur.a, b: -2 * cur.a * cur.h, c: cur.a * cur.h * cur.h + cur.k };
+    return { a: cur.a, b: -cur.a * (cur.x1 + cur.x2), c: cur.a * cur.x1 * cur.x2 };
+  }
+  function curFromPoly() {
+    var aviso = "";
+    if (mode === "poly") cur = { a: P.a, b: P.b, c: P.c };
+    else if (mode === "canon") { var v = vertex(P); cur = { a: P.a, h: v.h, k: v.k }; }
+    else {
+      var rr = roots(P);
+      if (rr.length === 0) {
+        var vv = vertex(P);
+        var h = Math.round(vv.h * 4) / 4;
+        cur = { a: P.a, x1: h - 1, x2: h + 1 };
+        aviso = "La parábola anterior no tenía raíces reales, así que no se podía escribir en forma factorizada. Se tomaron dos raíces cercanas al vértice para que puedas seguir explorando.";
+      } else if (rr.length === 1) cur = { a: P.a, x1: rr[0], x2: rr[0] };
+      else cur = { a: P.a, x1: rr[0], x2: rr[1] };
+    }
+    return aviso;
+  }
+
+  // ---------- Deslizadores ----------
+  var slidersBox = document.getElementById("sliders");
+  var avisoEl = document.getElementById("aviso");
+
+  function buildSliders() {
+    slidersBox.innerHTML = "";
+    CFG[mode].sl.forEach(function (d) {
+      var key = d[0], id = "s-" + key;
+      var wrap = document.createElement("div");
+      wrap.className = "slider";
+      wrap.innerHTML =
+        '<label for="' + id + '"><b>' + d[1] + "</b>, " + d[2] + "</label>" +
+        '<output for="' + id + '" id="o-' + key + '"></output>' +
+        '<input type="range" id="' + id + '" min="' + d[3] + '" max="' + d[4] + '" step="' + d[5] + '">';
+      slidersBox.appendChild(wrap);
+      var inp = wrap.querySelector("input");
+      inp.value = cur[key];
+      inp.setAttribute("aria-valuetext", d[1] + " igual a " + fmt(cur[key]));
+      inp.addEventListener("input", function () {
+        var v = parseFloat(inp.value);
+        if (key === "a" && Math.abs(v) < 1e-9) { v = cur.a > 0 ? -0.1 : 0.1; inp.value = v; }
+        cur[key] = v;
+        inp.setAttribute("aria-valuetext", d[1] + " igual a " + fmt(v));
+        avisoEl.textContent = "";
+        P = polyFromCur();
+        update();
+      });
+    });
+    document.getElementById("tControles").textContent = "Deslizadores de la " + CFG[mode].titulo;
+  }
+  function refreshOutputs() {
+    CFG[mode].sl.forEach(function (d) {
+      document.getElementById("o-" + d[0]).textContent = fmt(cur[d[0]]);
+    });
+  }
+
+  // ---------- Selección de forma ----------
+  var rows = Array.prototype.slice.call(document.querySelectorAll(".form-row"));
+  rows.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var m = btn.getAttribute("data-mode");
+      if (m === mode) return;
+      mode = m;
+      rows.forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
+      var aviso = curFromPoly();
+      P = polyFromCur();
+      buildSliders();
+      avisoEl.textContent = aviso;
+      update();
+    });
+  });
+
+  // ---------- Panel de puntos ----------
+  function pt(x, y) { return "(" + fmt(x) + " ; " + fmt(y) + ")"; }
+
+  function updateTexts() {
+    var v = vertex(P), rr = (mode === "fact") ? [cur.x1, cur.x2].sort(function (a, b) { return a - b; }) : roots(P);
+    if (mode === "fact" && Math.abs(rr[0] - rr[1]) < EPS) rr = [rr[0]];
+    var d = disc(P);
+
+    document.getElementById("ePoly").innerHTML = exprPoly(P);
+    document.getElementById("eCanon").innerHTML = exprCanon(P);
+    var ef = exprFact(P, rr), eFact = document.getElementById("eFact");
+    if (ef) { eFact.innerHTML = ef; eFact.classList.remove("none"); }
+    else { eFact.textContent = "No se puede factorizar en los números reales, porque el discriminante es negativo y no hay raíces reales."; eFact.classList.add("none"); }
+
+    document.getElementById("pV").textContent = "V = " + pt(v.h, v.k);
+    document.getElementById("pE").innerHTML = X + " = " + fmt(v.h);
+    var pR = document.getElementById("pR");
+    if (rr.length === 0) pR.textContent = "No tiene raíces reales";
+    else if (rr.length === 1) pR.innerHTML = "Raíz doble en " + X + " = " + fmt(rr[0]);
+    else pR.innerHTML = X + "₁ = " + fmt(rr[0]) + " y " + X + "₂ = " + fmt(rr[1]);
+    document.getElementById("pY").textContent = "C = " + pt(0, P.c);
+    document.getElementById("pD").textContent = "Δ = b² − 4ac = " + fmt(d) + (d > 0 ? " (positivo)" : d < 0 ? " (negativo)" : " (cero)");
+    document.getElementById("pC").textContent = P.a > 0 ? "Hacia arriba (a > 0)" : "Hacia abajo (a < 0)";
+    document.getElementById("pI").textContent = P.a > 0 ? "[" + fmt(v.k) + " ; +∞)" : "(−∞ ; " + fmt(v.k) + "]";
+
+    // descripción para lectores de pantalla
+    var desc = "Parábola con concavidad hacia " + (P.a > 0 ? "arriba" : "abajo") +
+      ". Vértice en " + fmt(v.h) + " ; " + fmt(v.k) + ". " +
+      (rr.length === 0 ? "No tiene raíces reales. " :
+        rr.length === 1 ? "Tiene una raíz doble en x igual a " + fmt(rr[0]) + ". " :
+        "Raíces en x igual a " + fmt(rr[0]) + " y x igual a " + fmt(rr[1]) + ". ") +
+      "Corta al eje y en " + fmt(P.c) + ".";
+    canvas.setAttribute("aria-label", "Gráfico de la parábola. " + desc);
+    clearTimeout(updateTexts.t);
+    updateTexts.t = setTimeout(function () { document.getElementById("anuncio").textContent = desc; }, 600);
+    return rr;
+  }
+
+  // ---------- Gráfico ----------
+  var canvas = document.getElementById("lienzo");
+  var ctx = canvas.getContext("2d");
+  var W = 0, H = 0;
+  var show = { V: true, R: true, Y: true, E: true };
+  ["V", "R", "Y", "E"].forEach(function (k) {
+    var el = document.getElementById("ver" + k);
+    el.addEventListener("change", function () { show[k] = el.checked; draw(); });
+  });
+
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function resize() {
+    var dpr = window.devicePixelRatio || 1;
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  var lastRoots = [];
+  function draw() {
+    if (!W) return;
+    var s = W / (2 * view.R);
+    var xmin = view.cx - view.R, xmax = view.cx + view.R;
+    var halfH = H / 2 / s, ymin = view.cy - halfH, ymax = view.cy + halfH;
+    function px(x) { return (x - xmin) * s; }
+    function py(y) { return (ymax - y) * s; }
+
+    var col = {
+      paper: css("--paper"), grid: css("--grid"), gridS: css("--grid-strong"), axis: css("--axis"),
+      curve: css("--curve"), v: css("--vertex"), r: css("--root"), y: css("--yint"), muted: css("--muted"), ink: css("--ink")
+    };
+    var font = css("--text");
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = col.paper; ctx.fillRect(0, 0, W, H);
+
+    // cuadrícula
+    var steps = [0.5, 1, 2, 5, 10, 20, 50], step = 50;
+    for (var i = 0; i < steps.length; i++) { if (steps[i] * s >= 30) { step = steps[i]; break; } }
+    ctx.lineWidth = 1;
+    for (var gx = Math.ceil(xmin / step) * step; gx <= xmax; gx += step) {
+      ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(Math.round(px(gx)) + .5, 0); ctx.lineTo(Math.round(px(gx)) + .5, H); ctx.stroke();
+    }
+    for (var gy = Math.ceil(ymin / step) * step; gy <= ymax; gy += step) {
+      ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(0, Math.round(py(gy)) + .5); ctx.lineTo(W, Math.round(py(gy)) + .5); ctx.stroke();
+    }
+
+    // ejes
+    ctx.strokeStyle = col.axis; ctx.lineWidth = 1.5;
+    var ax = Math.min(Math.max(px(0), 0), W), ay = Math.min(Math.max(py(0), 0), H);
+    ctx.beginPath(); ctx.moveTo(0, ay); ctx.lineTo(W, ay); ctx.moveTo(ax, 0); ctx.lineTo(ax, H); ctx.stroke();
+
+    // números de los ejes
+    ctx.fillStyle = col.muted; ctx.font = "12px " + font;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    var labY = Math.min(Math.max(ay + 4, 2), H - 16);
+    for (gx = Math.ceil(xmin / step) * step; gx <= xmax; gx += step) {
+      if (Math.abs(gx) < EPS || px(gx) < 14 || px(gx) > W - 24) continue;
+      ctx.fillText(fmt(gx), px(gx), labY);
+    }
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    var labX = Math.min(Math.max(ax - 5, 30), W - 4);
+    for (gy = Math.ceil(ymin / step) * step; gy <= ymax; gy += step) {
+      if (Math.abs(gy) < EPS || py(gy) < 18 || py(gy) > H - 10) continue;
+      ctx.fillText(fmt(gy), labX, py(gy));
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
+    ctx.fillText("x", W - 12, Math.min(Math.max(ay + 4, 2), H - 16));
+    ctx.fillText("y", Math.min(Math.max(ax + 6, 2), W - 12), 4);
+
+    var v = vertex(P);
+
+    // eje de simetría
+    if (show.E) {
+      ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = col.muted; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(px(v.h), 0); ctx.lineTo(px(v.h), H); ctx.stroke(); ctx.restore();
+    }
+
+    // parábola
+    ctx.strokeStyle = col.curve; ctx.lineWidth = 3; ctx.lineJoin = "round";
+    ctx.beginPath();
+    var started = false;
+    for (var X0 = 0; X0 <= W; X0 += 1) {
+      var x = xmin + X0 / s, y = P.a * x * x + P.b * x + P.c, Y0 = py(y);
+      if (Y0 < -2000 || Y0 > H + 2000) { started = false; continue; }
+      if (!started) { ctx.moveTo(X0, Y0); started = true; } else ctx.lineTo(X0, Y0);
+    }
+    ctx.stroke();
+
+    // puntos
+    function halo(text, x, y, color, align) {
+      ctx.font = "bold 14px " + font; ctx.textAlign = align || "left"; ctx.textBaseline = "middle";
+      ctx.lineWidth = 4; ctx.strokeStyle = col.paper; ctx.strokeText(text, x, y);
+      ctx.fillStyle = color; ctx.fillText(text, x, y);
+    }
+    function marker(shape, x, y, color) {
+      ctx.fillStyle = color; ctx.strokeStyle = col.paper; ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (shape === "sq") ctx.rect(x - 6, y - 6, 12, 12);
+      else if (shape === "tri") { ctx.moveTo(x, y - 8); ctx.lineTo(x + 7, y + 5); ctx.lineTo(x - 7, y + 5); ctx.closePath(); }
+      else ctx.arc(x, y, 6.5, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+    }
+
+    if (show.Y) {
+      marker("tri", px(0), py(P.c), col.y);
+      halo("C", px(0) + 10, py(P.c) - 12, col.y);
+    }
+    if (show.R) {
+      lastRoots.forEach(function (r, i) {
+        marker("ci", px(r), py(0), col.r);
+        var lab = lastRoots.length === 1 ? "R" : (i === 0 ? "R₁" : "R₂");
+        halo(lab, px(r) + (i === 0 && lastRoots.length > 1 ? -10 : 10), py(0) + (P.a > 0 ? 16 : -16), col.r, i === 0 && lastRoots.length > 1 ? "right" : "left");
+      });
+    }
+    if (show.V) {
+      marker("sq", px(v.h), py(v.k), col.v);
+      halo("V", px(v.h) + 11, py(v.k) + (P.a > 0 ? 14 : -14), col.v);
+    }
+  }
+
+  // vista
+  document.getElementById("zIn").addEventListener("click", function () { view.R = Math.max(2, view.R / 1.25); draw(); });
+  document.getElementById("zOut").addEventListener("click", function () { view.R = Math.min(60, view.R * 1.25); draw(); });
+  document.getElementById("zV").addEventListener("click", function () { var v = vertex(P); view.cx = v.h; view.cy = v.k; draw(); });
+  document.getElementById("z0").addEventListener("click", function () { view.cx = VIEW0.cx; view.cy = VIEW0.cy; view.R = VIEW0.R; draw(); });
+
+  // arrastrar el gráfico para desplazarlo
+  var drag = null;
+  canvas.addEventListener("pointerdown", function (e) { drag = { x: e.clientX, y: e.clientY, cx: view.cx, cy: view.cy }; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!drag) return;
+    var s = W / (2 * view.R);
+    view.cx = drag.cx - (e.clientX - drag.x) / s;
+    view.cy = drag.cy + (e.clientY - drag.y) / s;
+    draw();
+  });
+  canvas.addEventListener("pointerup", function () { drag = null; });
+  canvas.addEventListener("pointercancel", function () { drag = null; });
+
+  // ---------- Accesibilidad: tamaño de letra y tema ----------
+  var root = document.documentElement;
+  var btnG = document.getElementById("btnGrande");
+  btnG.addEventListener("click", function () {
+    var on = root.classList.toggle("grande");
+    btnG.setAttribute("aria-pressed", String(on));
+    requestAnimationFrame(resize);
+  });
+  var btnT = document.getElementById("btnTema");
+  function isDark() {
+    var t = root.getAttribute("data-theme");
+    if (t) return t === "dark";
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function labelTema() { btnT.textContent = isDark() ? "Cambiar a modo claro" : "Cambiar a modo oscuro"; }
+  btnT.addEventListener("click", function () {
+    root.setAttribute("data-theme", isDark() ? "light" : "dark");
+    labelTema(); draw();
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    var onChange = function () { labelTema(); draw(); };
+    if (mq.addEventListener) mq.addEventListener("change", onChange); else if (mq.addListener) mq.addListener(onChange);
+  }
+
+  // ---------- Respuestas de Para explorar ----------
+  Array.prototype.forEach.call(document.querySelectorAll(".ver"), function (b) {
+    b.addEventListener("click", function () {
+      var r = document.getElementById(b.getAttribute("aria-controls"));
+      var abrir = b.getAttribute("aria-expanded") !== "true";
+      r.hidden = !abrir;
+      b.setAttribute("aria-expanded", String(abrir));
+      b.textContent = abrir ? "Ocultar respuesta" : "Ver respuesta";
+    });
+  });
+
+  // ---------- Arranque ----------
+  function update() {
+    refreshOutputs();
+    lastRoots = updateTexts();
+    draw();
+  }
+  curFromPoly();
+  buildSliders();
+  labelTema();
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas); else window.addEventListener("resize", resize);
+  update();
+  resize();
+})();
+</script>
+</body>
+</html>
